@@ -1,0 +1,4 @@
+
+// code IGN pour localhost
+
+var codeIGN = "oii74b9hrfbpfyxfjzbie3pz";

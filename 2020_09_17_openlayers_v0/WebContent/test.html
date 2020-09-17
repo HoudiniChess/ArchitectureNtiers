@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>OpenLayers</title>
+<script type="text/javascript" src="js/jquery/jquery.min.js"></script>
+<link rel="stylesheet" href="js/ol/ol.css" />
+<script type="text/javascript" src="js/ol/ol.js"></script>
+<script type="text/javascript">
+
+	var lon = -4.501078;
+	var lat = 48.400727;
+	var zoom = 10;
+	var map = null;
+ 	var icon_fleche = 'img/marqueurs/marqueur_fleche.png';
+ 	var marqueur_prec;
+	
+	$(document).ready(function () {
+		initMap();
+	});
+	function initMap() {
+	 	 map = new ol.Map({
+	     target: 'map',
+	     layers: [
+	       new ol.layer.Tile({
+	         source: new ol.source.OSM()
+	       })
+	     ],
+	     view: new ol.View({
+	         center: ol.proj.transform([lon, lat], 'EPSG:4326', 'EPSG:3857'),
+	         zoom: zoom,
+	         projection: 'EPSG:3857',
+	     })
+	   });
+	 	 
+
+		var marqueur_fleche = ajouterMarqueursMercator(map,[{lon:lon,lat:lat,txt:""}],"Direction",icon_fleche,0.7,16);
+		marqueur_fleche.getStyle().getImage().setRotation(Math.PI/2);
+		map.on("click", function(event) {
+			gestionClic(event,map);
+		});
+
+	}
+	
+	function gestionClic(event,map) {
+		var coord = ol.proj.transform(event.coordinate, 'EPSG:3857', 'EPSG:4326');
+		   var pos = {lon:coord[0], lat:coord[1]}; // GPS​
+		    $("#lon").html("" + pos.lon.toFixed(6));
+		    $("#lat").html("" + pos.lat.toFixed(6));
+		    // Mercator
+		    //alert("Mercator : lon = "+event.coordinate[0]+" lat = "+event.coordinate[1]);
+		    // GPS
+		    //alert("GPS : lon = "+pos.lon.toFixed(6)+" lat = "+pos.lat.toFixed(6));
+		    ajouterMarqueursMercator(map, 
+		    		[pos], "Direction", icon_fleche,0.7,16);
+		    if(marqueur_prec != null) {
+		    	var coord_prec = ol.proj.transform(marqueur_prec.getSource().getFeatures()[0].getGeometry().getCoordinates(),'EPSG:3857','EPSG:4326')
+		   
+		    	var lon1 = coord_prec[0]
+		    	var lon2 = coord_prec[1]
+		    	var lat1 = coord[0]
+		    	var lat2 = coord[1]
+		    	
+		    	var a = angle(lon1,lat1,lon2,lat2)
+		    	marqueur.getStyle().getImage().setRotation(a)
+		    }
+		    
+		    marqueur_prec = marqueur
+		}
+	
+	
+	
+	function ajouterMarqueursMercator(map,lmarkers,name,icon,opacity,posY) {	
+		 var vectorSource = new ol.source.Vector({
+			  //create empty vector
+			});
+		 lmarkers.forEach (function(marker) {
+				vectorSource.addFeature(new ol.Feature({
+				    geometry : new ol.geom.Point(ol.proj.transform([marker.lon, marker.lat], 'EPSG:4326', 'EPSG:3857')),
+			        txt : marker.txt
+				}));
+		 });
+		
+		var image = new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
+			  	    anchor: [0.5, posY],
+			  	    anchorXUnits: 'fraction',
+			  	    anchorYUnits: 'pixels',
+			  	    opacity: opacity,
+			  	    src: icon
+			  	  }));
+		
+		var vectorLayer = new ol.layer.Vector({
+		    source : vectorSource,
+		    name : name,
+			style: new ol.style.Style({
+			    	  image: image
+			    	  	})
+		});
+		//polyLayer.set('name','rrrr');
+		map.addLayer(vectorLayer);
+		// map.addOverlay(vectorLayer);
+		return vectorLayer;
+	}
+
+	function angle(lon1, lat1, lon2, lat2) {
+		// en radians
+		var angle = Math.atan2(lon2 - lon1, lat2 - lat1);
+		return angle;
+		// en degrés
+		//var angle = Math.atan2(lon2 - lon1, lat2 - lat1) * 180 / Math.PI;
+		//if (angle < 0) angle += 360;
+		//return angle;
+	}
+	
+	
+</script>
+</head>
+<body>
+	<div id="map"
+		style="width: 100%; height: 900px; " >
+		lon = <span id="lon"></span>
+		lat = <span id = "lat"></span>
+	</div>
+</body>
+</html>
