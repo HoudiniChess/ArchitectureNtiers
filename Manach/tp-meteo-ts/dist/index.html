@@ -1,0 +1,55 @@
+<html>
+  <meta lang="fr" />
+  <meta charset="utf-8" />
+  <head>
+    <script src="MeteoAPI.js"></script>
+    <script src="MeteoDOM.js"></script>
+    <script>
+      let meteoAPI = new MeteoAPI();
+      let meteoDOM = new MeteoDOM();
+
+      function meteoSearchHandler(event) {
+        if (event && (!event.keyCode || event.keyCode == 13)) {
+          searchAndShowResult();
+        }
+      }
+
+      function meteoClickHandler(event) {
+        searchAndShowResult();
+      }
+
+      async function searchAndShowResult() {
+        const ville = document.getElementById("meteo-ti").value;
+        meteoDOM.showLoader(true);
+        const result = await meteoAPI.search(ville);
+        console.info("result ", result);
+        meteoDOM.parseResult(result);
+        meteoDOM.showLoader(false);
+      }
+    </script>
+    <link href="meteo.css" rel="stylesheet" />
+  </head>
+
+  <body>
+    <div id="main-container">
+      <p id="app-title">Ma météo !</p>
+      <div id="search">
+        <input
+          placeholder="rechercher une ville..."
+          type="text"
+          id="meteo-ti"
+          onkeydown="meteoSearchHandler(event)"
+        />
+        <button onclick="meteoClickHandler(event)">LANCER</button>
+      </div>
+      <div id="weather-title"></div>
+      <div id="weather-results"></div>
+    </div>
+    <div id="loader-container">
+      <div class="loader"></div>
+    </div>
+    <div id="error-container">
+      <p class="error">Une erreur s'est produite...</p>
+    </div>
+  </body>
+</html>

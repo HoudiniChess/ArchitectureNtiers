@@ -1,0 +1,28 @@
+<html>
+  <meta lang="fr" />
+  <meta charset="utf-8" />
+  <head>
+    <script src="meteo.js"></script>
+    <!--<link href="meteo.css" rel="stylesheet" />-->
+  </head>
+
+  <body>
+    <div id="mainContainer">
+      <p id="app-title">Ma météo !</p>
+      <div id="search">
+        <input
+          placeholder="rechercher une ville..."
+          type="text"
+          id="meteoTI"
+          onkeydown="meteoSearchHandler(event)"
+        />
+        <button onclick="meteoClickHandler(event)">LANCER</button>
+      </div>
+      <div id="weather_title"></div>
+      <div id="weather_results"></div>
+    </div>
+    <div id="loaderContainer">
+      <div class="loader"></div>
+    </div>
+  </body>
+</html>
